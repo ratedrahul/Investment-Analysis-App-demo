@@ -1,6 +1,8 @@
+from rest_framework import serializers as drf_serializers
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, inline_serializer
 
 from .serializers import FundDetailSerializer, FundRankingSerializer, FundStatsSerializer
 from .services.analysis import (
@@ -12,6 +14,12 @@ from .services.analysis import (
 from .services.dataset_generator import generate_dataset
 
 
+@extend_schema(
+    summary="API root",
+    description="Returns a directory of all available endpoints.",
+    responses={200: dict},
+    tags=["General"],
+)
 @api_view(["GET"])
 def api_root(request):
     """Entry point for the Investment Fund Analysis API.
@@ -28,15 +36,37 @@ def api_root(request):
             "all_funds": "/api/funds/all/",
             "fund_rankings": "/api/funds/rankings/",
             "fund_detail": "/api/funds/<fund_name>/",
+            "schema": "/api/schema/",
+            "docs": "/api/docs/",
         },
     })
 
 
+@extend_schema(
+    summary="Health check",
+    description="Simple liveness probe that returns {\"status\": \"ok\"}.",
+    responses={200: inline_serializer("HealthResponse", fields={
+        "status": drf_serializers.CharField(),
+    })},
+    tags=["General"],
+)
 @api_view(["GET"])
 def health_check(request):
+    """Simple liveness probe for monitoring."""
     return Response({"status": "ok"})
 
 
+@extend_schema(
+    summary="Top consistent funds",
+    description=(
+        "Return the top 3 most consistent funds ranked by lowest volatility "
+        "(standard deviation of monthly returns)."
+    ),
+    responses={200: inline_serializer("TopFundsResponse", fields={
+        "funds": FundStatsSerializer(many=True),
+    })},
+    tags=["Fund Analysis"],
+)
 @api_view(["GET"])
 def top_consistent_funds(request):
     """Return the top 3 most consistent funds ranked by lowest volatility."""
@@ -45,6 +75,14 @@ def top_consistent_funds(request):
     return Response({"funds": serializer.data})
 
 
+@extend_schema(
+    summary="All funds",
+    description="Return every fund with its average return and volatility, sorted by volatility ascending.",
+    responses={200: inline_serializer("AllFundsResponse", fields={
+        "funds": FundStatsSerializer(many=True),
+    })},
+    tags=["Fund Analysis"],
+)
 @api_view(["GET"])
 def all_funds(request):
     """Return every fund with its average return and volatility metrics."""
@@ -53,6 +91,14 @@ def all_funds(request):
     return Response({"funds": serializer.data})
 
 
+@extend_schema(
+    summary="Fund rankings",
+    description="Return all funds ranked by consistency (lowest volatility = rank 1).",
+    responses={200: inline_serializer("RankingsResponse", fields={
+        "funds": FundRankingSerializer(many=True),
+    })},
+    tags=["Fund Analysis"],
+)
 @api_view(["GET"])
 def fund_rankings(request):
     """Return all funds ranked by consistency (lowest volatility first)."""
@@ -61,6 +107,20 @@ def fund_rankings(request):
     return Response({"funds": serializer.data})
 
 
+@extend_schema(
+    summary="Generate dataset",
+    description=(
+        "Generate a fresh CSV dataset of 100 investment funds with 12 monthly "
+        "returns each. Values range from -5% to +8% with a mix of low, medium, "
+        "and high volatility profiles. Overwrites the existing data file."
+    ),
+    request=None,
+    responses={200: inline_serializer("GenerateResponse", fields={
+        "status": drf_serializers.CharField(),
+        "fund_count": drf_serializers.IntegerField(),
+    })},
+    tags=["Dataset"],
+)
 @api_view(["POST"])
 def generate_dataset_view(request):
     """Generate a fresh 100-fund CSV dataset and save it to disk."""
@@ -68,9 +128,23 @@ def generate_dataset_view(request):
     return Response({"status": "success", "fund_count": fund_count})
 
 
+@extend_schema(
+    summary="Fund detail",
+    description=(
+        "Return detailed metrics for a single fund including its 12 monthly "
+        "return values, average return, and volatility score."
+    ),
+    responses={
+        200: FundDetailSerializer,
+        404: inline_serializer("FundNotFoundResponse", fields={
+            "error": drf_serializers.CharField(),
+        }),
+    },
+    tags=["Fund Analysis"],
+)
 @api_view(["GET"])
 def fund_detail(request, fund_name):
-    """Return detailed metrics for a single fund."""
+    """Return detailed metrics for a single fund including monthly returns."""
     detail = get_fund_detail(fund_name)
     if detail is None:
         return Response(
