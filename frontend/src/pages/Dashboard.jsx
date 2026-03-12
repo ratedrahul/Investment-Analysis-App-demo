@@ -63,7 +63,7 @@ function Dashboard() {
 
   if (loading) {
     return (
-      <div style={{ textAlign: "center", padding: "4rem", color: "#64748b" }}>
+      <div style={{ textAlign: "center", padding: "4rem", color: "var(--text-muted)" }}>
         <div style={spinnerStyleLarge} />
         <div style={{ marginTop: "1rem", fontSize: "1rem" }}>Loading fund data...</div>
       </div>
@@ -82,7 +82,7 @@ function Dashboard() {
     <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "1rem" }}>
       {/* Action bar */}
       <div style={actionBarStyle}>
-        <div style={{ fontSize: "0.85rem", color: "#64748b" }}>
+        <div style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
           {rankings.length} funds loaded
         </div>
         <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -104,9 +104,9 @@ function Dashboard() {
         <div
           style={{
             ...bannerStyle,
-            background: genMessage.type === "success" ? "#f0fdf4" : "#fef2f2",
-            borderColor: genMessage.type === "success" ? "#bbf7d0" : "#fecaca",
-            color: genMessage.type === "success" ? "#166534" : "#dc2626",
+            background: genMessage.type === "success" ? "var(--success-bg)" : "var(--error-bg)",
+            borderColor: genMessage.type === "success" ? "var(--success-border)" : "var(--error-border)",
+            color: genMessage.type === "success" ? "var(--success-dark)" : "var(--error)",
           }}
         >
           {genMessage.text}
@@ -119,7 +119,7 @@ function Dashboard() {
         <VolatilityChart funds={topFunds} />
       </div>
 
-      {/* Rankings — always visible */}
+      {/* Rankings */}
       <FundRankingsTable funds={rankings} onSelectFund={setSelectedFund} />
 
       {/* Fund detail modal */}
@@ -136,8 +136,8 @@ function Dashboard() {
 const spinnerStyleLarge = {
   width: "36px",
   height: "36px",
-  border: "3px solid #e2e8f0",
-  borderTopColor: "#6366f1",
+  border: "3px solid var(--border)",
+  borderTopColor: "var(--accent)",
   borderRadius: "50%",
   animation: "spin 0.6s linear infinite",
   margin: "0 auto",
@@ -146,12 +146,12 @@ const spinnerStyleLarge = {
 const errorBannerStyle = {
   textAlign: "center",
   padding: "2rem",
-  color: "#dc2626",
-  background: "#fef2f2",
+  color: "var(--error)",
+  background: "var(--error-bg)",
   borderRadius: "8px",
   margin: "2rem auto",
   maxWidth: "600px",
-  border: "1px solid #fecaca",
+  border: "1px solid var(--error-border)",
 };
 
 const actionBarStyle = {
@@ -176,9 +176,9 @@ const btnBase = {
   alignItems: "center",
 };
 
-const btnPrimary = { ...btnBase, background: "#6366f1", color: "#fff" };
-const btnSecondary = { ...btnBase, background: "#e2e8f0", color: "#334155" };
-const btnDisabled = { ...btnBase, background: "#a5b4fc", color: "#fff", cursor: "not-allowed" };
+const btnPrimary = { ...btnBase, background: "var(--accent)", color: "#fff" };
+const btnSecondary = { ...btnBase, background: "var(--btn-secondary-bg)", color: "var(--btn-secondary-color)" };
+const btnDisabled = { ...btnBase, background: "var(--accent-muted)", color: "#fff", cursor: "not-allowed" };
 
 const bannerStyle = {
   padding: "0.75rem 1rem",

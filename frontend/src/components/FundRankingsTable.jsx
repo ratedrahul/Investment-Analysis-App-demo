@@ -26,7 +26,7 @@ function FundRankingsTable({ funds, onSelectFund }) {
 
       <div style={tableContainer}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead style={{ background: "#f8fafc", position: "sticky", top: 0, zIndex: 1 }}>
+          <thead style={{ background: "var(--bg-card-alt)", position: "sticky", top: 0, zIndex: 1 }}>
             <tr>
               <th style={headerStyle}>Rank</th>
               <th style={headerStyle}>Fund Name</th>
@@ -40,14 +40,14 @@ function FundRankingsTable({ funds, onSelectFund }) {
                 key={fund.fund_name}
                 onClick={() => onSelectFund(fund.fund_name)}
                 style={{
-                  background: index % 2 === 0 ? "#fff" : "#f8fafc",
+                  background: index % 2 === 0 ? "var(--bg-card)" : "var(--bg-card-alt)",
                   cursor: "pointer",
                   transition: "background 0.12s",
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "#eef2ff"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = index % 2 === 0 ? "#fff" : "#f8fafc"; }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "var(--accent-hover)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = index % 2 === 0 ? "var(--bg-card)" : "var(--bg-card-alt)"; }}
               >
-                <td style={{ ...cellStyle, fontWeight: 600, color: "#6366f1", width: "60px" }}>
+                <td style={{ ...cellStyle, fontWeight: 600, color: "var(--accent)", width: "60px" }}>
                   #{fund.rank}
                 </td>
                 <td style={{ ...cellStyle, fontWeight: 500 }}>{fund.fund_name}</td>
@@ -61,7 +61,7 @@ function FundRankingsTable({ funds, onSelectFund }) {
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={4} style={{ ...cellStyle, textAlign: "center", color: "#94a3b8" }}>
+                <td colSpan={4} style={{ ...cellStyle, textAlign: "center", color: "var(--text-dimmed)" }}>
                   No funds match "{search}"
                 </td>
               </tr>
@@ -70,7 +70,7 @@ function FundRankingsTable({ funds, onSelectFund }) {
         </table>
       </div>
 
-      <p style={{ fontSize: "0.8rem", color: "#94a3b8", marginTop: "0.5rem" }}>
+      <p style={{ fontSize: "0.8rem", color: "var(--text-dimmed)", marginTop: "0.5rem" }}>
         Showing {filtered.length} of {funds.length} funds. Click a row to view details.
       </p>
     </section>
@@ -78,33 +78,34 @@ function FundRankingsTable({ funds, onSelectFund }) {
 }
 
 function getVolColor(vol) {
-  if (vol < 0.5) return "#dcfce7";
-  if (vol < 1.5) return "#fef9c3";
-  return "#fee2e2";
+  if (vol < 0.5) return "var(--vol-low)";
+  if (vol < 1.5) return "var(--vol-mid)";
+  return "var(--vol-high)";
 }
 
 const headingStyle = {
   fontSize: "1.1rem",
-  color: "#1e293b",
+  color: "var(--text-primary)",
   fontWeight: 600,
   margin: 0,
 };
 
 const searchStyle = {
   padding: "0.45rem 0.75rem",
-  border: "1px solid #e2e8f0",
+  border: "1px solid var(--border)",
   borderRadius: "6px",
   fontSize: "0.85rem",
   outline: "none",
   width: "200px",
-  background: "#fff",
+  background: "var(--bg-input)",
+  color: "var(--text-primary)",
 };
 
 const tableContainer = {
-  background: "#fff",
+  background: "var(--bg-card)",
   borderRadius: "8px",
   overflow: "hidden",
-  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+  boxShadow: "var(--shadow)",
   maxHeight: "460px",
   overflowY: "auto",
 };
@@ -112,8 +113,8 @@ const tableContainer = {
 const headerStyle = {
   padding: "0.65rem 1rem",
   textAlign: "left",
-  borderBottom: "2px solid #e2e8f0",
-  color: "#475569",
+  borderBottom: "2px solid var(--border)",
+  color: "var(--text-secondary)",
   fontSize: "0.72rem",
   textTransform: "uppercase",
   letterSpacing: "0.05em",
@@ -122,8 +123,9 @@ const headerStyle = {
 
 const cellStyle = {
   padding: "0.6rem 1rem",
-  borderBottom: "1px solid #f1f5f9",
+  borderBottom: "1px solid var(--border-light)",
   fontSize: "0.9rem",
+  color: "var(--text-primary)",
 };
 
 const volBadge = {
@@ -132,6 +134,7 @@ const volBadge = {
   borderRadius: "10px",
   fontSize: "0.8rem",
   fontWeight: 600,
+  color: "var(--text-primary)",
 };
 
 export default FundRankingsTable;

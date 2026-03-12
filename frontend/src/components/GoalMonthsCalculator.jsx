@@ -37,76 +37,6 @@ function validate(goalAmount, monthlyContribution, annualRate) {
   return errors;
 }
 
-const inputGroupStyle = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "0.25rem",
-  flex: 1,
-  minWidth: "180px",
-};
-
-const labelStyle = {
-  fontSize: "0.75rem",
-  textTransform: "uppercase",
-  letterSpacing: "0.05em",
-  color: "#475569",
-  fontWeight: 600,
-};
-
-const inputStyle = {
-  padding: "0.6rem 0.75rem",
-  border: "1px solid #cbd5e1",
-  borderRadius: "6px",
-  fontSize: "0.95rem",
-  outline: "none",
-  width: "100%",
-  boxSizing: "border-box",
-};
-
-const inputErrorStyle = {
-  ...inputStyle,
-  border: "1px solid #fca5a5",
-  background: "#fef2f2",
-};
-
-const cardStyle = {
-  background: "#fff",
-  borderRadius: "8px",
-  padding: "1.5rem",
-  boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-  marginBottom: "1rem",
-};
-
-const headerCellStyle = {
-  padding: "0.5rem 1rem",
-  textAlign: "left",
-  borderBottom: "2px solid #e2e8f0",
-  color: "#475569",
-  fontSize: "0.75rem",
-  textTransform: "uppercase",
-  letterSpacing: "0.05em",
-};
-
-const cellStyle = {
-  padding: "0.5rem 1rem",
-  borderBottom: "1px solid #f1f5f9",
-  fontSize: "0.9rem",
-};
-
-const statLabelStyle = {
-  fontSize: "0.7rem",
-  textTransform: "uppercase",
-  letterSpacing: "0.05em",
-  color: "#64748b",
-  marginBottom: "0.2rem",
-};
-
-const statValueStyle = {
-  fontSize: "1.4rem",
-  fontWeight: 700,
-  color: "#1e293b",
-};
-
 function formatCurrency(value) {
   return value.toLocaleString("en-US", {
     style: "currency",
@@ -176,7 +106,7 @@ function GoalMonthsCalculator() {
 
   return (
     <section style={{ marginBottom: "2.5rem" }}>
-      <h2 style={{ fontSize: "1.25rem", marginBottom: "1rem", color: "#1e293b" }}>
+      <h2 style={{ fontSize: "1.25rem", marginBottom: "1rem", color: "var(--text-primary)" }}>
         Financial Goal Calculator
       </h2>
 
@@ -217,7 +147,7 @@ function GoalMonthsCalculator() {
         </div>
 
         {errors.length > 0 && (
-          <div style={{ marginTop: "0.75rem", color: "#dc2626", fontSize: "0.85rem" }}>
+          <div style={{ marginTop: "0.75rem", color: "var(--error)", fontSize: "0.85rem" }}>
             {errors.map((err) => (
               <div key={err}>{err}</div>
             ))}
@@ -239,7 +169,7 @@ function GoalMonthsCalculator() {
             <div style={statLabelStyle}>Months Required</div>
             <div style={statValueStyle}>
               {summary.months}
-              <span style={{ fontSize: "0.85rem", fontWeight: 400, color: "#64748b" }}>
+              <span style={{ fontSize: "0.85rem", fontWeight: 400, color: "var(--text-muted)" }}>
                 {" "}({summary.years} yr)
               </span>
             </div>
@@ -250,7 +180,7 @@ function GoalMonthsCalculator() {
           </div>
           <div style={cardStyle}>
             <div style={statLabelStyle}>Interest Earned</div>
-            <div style={{ ...statValueStyle, color: "#16a34a" }}>
+            <div style={{ ...statValueStyle, color: "var(--success)" }}>
               {formatCurrency(summary.totalInterest)}
             </div>
           </div>
@@ -266,11 +196,11 @@ function GoalMonthsCalculator() {
         <div
           style={{
             ...cardStyle,
-            background: "#fefce8",
-            border: "1px solid #fde68a",
+            background: "var(--warning-bg)",
+            border: "1px solid var(--warning-border)",
           }}
         >
-          <span style={{ color: "#854d0e", fontSize: "0.95rem" }}>
+          <span style={{ color: "var(--warning-text)", fontSize: "0.95rem" }}>
             The goal was not reached within {MAX_MONTHS} months. Try increasing
             your monthly contribution or interest rate.
           </span>
@@ -278,7 +208,7 @@ function GoalMonthsCalculator() {
       )}
 
       {projections.length === 0 && errors.length === 0 && (
-        <div style={{ ...cardStyle, color: "#64748b", fontSize: "0.95rem" }}>
+        <div style={{ ...cardStyle, color: "var(--text-muted)", fontSize: "0.95rem" }}>
           Enter a valid goal amount and monthly contribution to see projections.
         </div>
       )}
@@ -291,43 +221,49 @@ function GoalMonthsCalculator() {
               data={projections}
               margin={{ top: 10, right: 30, left: 10, bottom: 5 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
               <XAxis
                 dataKey="month"
                 ticks={chartTicks}
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, fill: "var(--text-muted)" }}
                 label={{
                   value: "Month",
                   position: "insideBottomRight",
                   offset: -5,
-                  style: { fontSize: 12, fill: "#64748b" },
+                  style: { fontSize: 12, fill: "var(--text-muted)" },
                 }}
               />
               <YAxis
                 tickFormatter={(v) => formatCurrency(v)}
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, fill: "var(--text-muted)" }}
                 width={80}
               />
               <Tooltip
                 formatter={(value) => [formatCurrency(value), "Balance"]}
                 labelFormatter={(label) => `Month ${label}`}
-                contentStyle={{ borderRadius: "6px", fontSize: "0.9rem" }}
+                contentStyle={{
+                  borderRadius: "6px",
+                  fontSize: "0.9rem",
+                  background: "var(--chart-tooltip-bg)",
+                  border: "1px solid var(--chart-tooltip-border)",
+                  color: "var(--text-primary)",
+                }}
               />
               <ReferenceLine
                 y={goalAmount}
-                stroke="#f59e0b"
+                stroke="var(--amber)"
                 strokeDasharray="5 3"
                 strokeWidth={1.5}
                 label={{
                   value: `Goal ${formatCurrency(goalAmount)}`,
                   position: "right",
-                  style: { fontSize: 11, fill: "#f59e0b" },
+                  style: { fontSize: 11, fill: "var(--amber)" },
                 }}
               />
               <Line
                 type="monotone"
                 dataKey="balance"
-                stroke="#6366f1"
+                stroke="var(--accent)"
                 strokeWidth={2}
                 dot={false}
                 activeDot={{ r: 5 }}
@@ -337,7 +273,7 @@ function GoalMonthsCalculator() {
                   x={goalPoint.month}
                   y={goalPoint.balance}
                   r={6}
-                  fill="#16a34a"
+                  fill="var(--success)"
                   stroke="#fff"
                   strokeWidth={2}
                 />
@@ -352,7 +288,7 @@ function GoalMonthsCalculator() {
         <div style={cardStyle}>
           <div style={{ maxHeight: "400px", overflowY: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead style={{ background: "#f8fafc", position: "sticky", top: 0 }}>
+              <thead style={{ background: "var(--bg-card-alt)", position: "sticky", top: 0 }}>
                 <tr>
                   <th style={headerCellStyle}>Month</th>
                   <th style={headerCellStyle}>Balance</th>
@@ -363,7 +299,7 @@ function GoalMonthsCalculator() {
                   <tr
                     key={row.month}
                     style={{
-                      background: row.balance >= goalAmount ? "#f0fdf4" : "#fff",
+                      background: row.balance >= goalAmount ? "var(--success-bg)" : "var(--bg-card)",
                     }}
                   >
                     <td style={cellStyle}>{row.month}</td>
@@ -378,5 +314,78 @@ function GoalMonthsCalculator() {
     </section>
   );
 }
+
+const inputGroupStyle = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.25rem",
+  flex: 1,
+  minWidth: "180px",
+};
+
+const labelStyle = {
+  fontSize: "0.75rem",
+  textTransform: "uppercase",
+  letterSpacing: "0.05em",
+  color: "var(--text-secondary)",
+  fontWeight: 600,
+};
+
+const inputStyle = {
+  padding: "0.6rem 0.75rem",
+  border: "1px solid var(--border-input)",
+  borderRadius: "6px",
+  fontSize: "0.95rem",
+  outline: "none",
+  width: "100%",
+  boxSizing: "border-box",
+  background: "var(--bg-input)",
+  color: "var(--text-primary)",
+};
+
+const inputErrorStyle = {
+  ...inputStyle,
+  border: "1px solid var(--error-border)",
+  background: "var(--error-bg)",
+};
+
+const cardStyle = {
+  background: "var(--bg-card)",
+  borderRadius: "8px",
+  padding: "1.5rem",
+  boxShadow: "var(--shadow)",
+  marginBottom: "1rem",
+};
+
+const headerCellStyle = {
+  padding: "0.5rem 1rem",
+  textAlign: "left",
+  borderBottom: "2px solid var(--border)",
+  color: "var(--text-secondary)",
+  fontSize: "0.75rem",
+  textTransform: "uppercase",
+  letterSpacing: "0.05em",
+};
+
+const cellStyle = {
+  padding: "0.5rem 1rem",
+  borderBottom: "1px solid var(--border-light)",
+  fontSize: "0.9rem",
+  color: "var(--text-primary)",
+};
+
+const statLabelStyle = {
+  fontSize: "0.7rem",
+  textTransform: "uppercase",
+  letterSpacing: "0.05em",
+  color: "var(--text-muted)",
+  marginBottom: "0.2rem",
+};
+
+const statValueStyle = {
+  fontSize: "1.4rem",
+  fontWeight: 700,
+  color: "var(--text-primary)",
+};
 
 export default GoalMonthsCalculator;

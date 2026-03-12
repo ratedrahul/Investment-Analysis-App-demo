@@ -20,22 +20,22 @@ function TopFundsTable({ funds, onSelectFund }) {
             }}
             onMouseEnter={(e) => {
               if (onSelectFund) e.currentTarget.style.transform = "translateY(-1px)";
-              if (onSelectFund) e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+              if (onSelectFund) e.currentTarget.style.boxShadow = "var(--shadow-lg)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "";
-              e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.06)";
+              e.currentTarget.style.boxShadow = "var(--shadow)";
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
               <span style={{ ...rankBadge, background: MEDAL[i] }}>#{i + 1}</span>
-              <span style={{ fontWeight: 600, color: "#1e293b", fontSize: "1rem" }}>
+              <span style={{ fontWeight: 600, color: "var(--text-primary)", fontSize: "1rem" }}>
                 {fund.fund_name}
               </span>
             </div>
-            <div style={{ display: "flex", gap: "1.5rem", fontSize: "0.85rem", color: "#475569" }}>
-              <span>Avg <strong style={{ color: "#1e293b" }}>{fund.average_return.toFixed(2)}%</strong></span>
-              <span>Vol <strong style={{ color: "#1e293b" }}>{fund.volatility.toFixed(2)}</strong></span>
+            <div style={{ display: "flex", gap: "1.5rem", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+              <span>Avg <strong style={{ color: "var(--text-primary)" }}>{fund.average_return.toFixed(2)}%</strong></span>
+              <span>Vol <strong style={{ color: "var(--text-primary)" }}>{fund.volatility.toFixed(2)}</strong></span>
             </div>
           </div>
         ))}
@@ -47,7 +47,7 @@ function TopFundsTable({ funds, onSelectFund }) {
 const headingStyle = {
   fontSize: "1.1rem",
   marginBottom: "0.75rem",
-  color: "#1e293b",
+  color: "var(--text-primary)",
   fontWeight: 600,
 };
 
@@ -56,9 +56,9 @@ const rowStyle = {
   justifyContent: "space-between",
   alignItems: "center",
   padding: "0.85rem 1rem",
-  background: "#fff",
+  background: "var(--bg-card)",
   borderRadius: "8px",
-  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+  boxShadow: "var(--shadow)",
   transition: "all 0.15s",
 };
 

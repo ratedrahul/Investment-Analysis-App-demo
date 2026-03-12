@@ -23,7 +23,7 @@ function Modal({ open, onClose, children }) {
         position: "fixed",
         inset: 0,
         zIndex: 1000,
-        background: "rgba(15, 23, 42, 0.6)",
+        background: "var(--bg-overlay)",
         backdropFilter: "blur(4px)",
         display: "flex",
         alignItems: "center",
@@ -34,9 +34,9 @@ function Modal({ open, onClose, children }) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: "#fff",
+          background: "var(--bg-modal)",
           borderRadius: "12px",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+          boxShadow: "var(--shadow-modal)",
           width: "100%",
           maxWidth: "800px",
           maxHeight: "90vh",
@@ -58,8 +58,8 @@ function Modal({ open, onClose, children }) {
             height: "32px",
             border: "none",
             borderRadius: "50%",
-            background: "#f1f5f9",
-            color: "#475569",
+            background: "var(--close-btn-bg)",
+            color: "var(--close-btn-color)",
             fontSize: "1.1rem",
             cursor: "pointer",
             display: "flex",

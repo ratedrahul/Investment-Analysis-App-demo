@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -39,7 +37,7 @@ function FundDetailView({ fundName }) {
 
   if (loading) {
     return (
-      <div style={{ textAlign: "center", padding: "3rem", color: "#64748b" }}>
+      <div style={{ textAlign: "center", padding: "3rem", color: "var(--text-muted)" }}>
         <div style={spinnerStyle} />
         <div style={{ marginTop: "0.75rem" }}>Loading {fundName}...</div>
       </div>
@@ -48,7 +46,7 @@ function FundDetailView({ fundName }) {
 
   if (error) {
     return (
-      <div style={{ textAlign: "center", padding: "2rem", color: "#dc2626" }}>
+      <div style={{ textAlign: "center", padding: "2rem", color: "var(--error)" }}>
         Error: {error}
       </div>
     );
@@ -66,10 +64,10 @@ function FundDetailView({ fundName }) {
     <div>
       {/* Header */}
       <div style={{ marginBottom: "1.5rem" }}>
-        <h2 style={{ fontSize: "1.35rem", color: "#1e293b", margin: 0 }}>
+        <h2 style={{ fontSize: "1.35rem", color: "var(--text-primary)", margin: 0 }}>
           {detail.fund_name}
         </h2>
-        <p style={{ color: "#64748b", fontSize: "0.85rem", margin: "0.25rem 0 0" }}>
+        <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", margin: "0.25rem 0 0" }}>
           12-month performance detail
         </p>
       </div>
@@ -83,10 +81,10 @@ function FundDetailView({ fundName }) {
           marginBottom: "1.5rem",
         }}
       >
-        <StatCard label="Avg Return" value={`${detail.average_return.toFixed(2)}%`} color="#6366f1" />
-        <StatCard label="Volatility" value={detail.volatility.toFixed(2)} color="#f59e0b" />
-        <StatCard label="Best Month" value={`${max.toFixed(1)}%`} color="#16a34a" />
-        <StatCard label="Worst Month" value={`${min.toFixed(1)}%`} color="#dc2626" />
+        <StatCard label="Avg Return" value={`${detail.average_return.toFixed(2)}%`} color="var(--accent)" />
+        <StatCard label="Volatility" value={detail.volatility.toFixed(2)} color="var(--amber)" />
+        <StatCard label="Best Month" value={`${max.toFixed(1)}%`} color="var(--success)" />
+        <StatCard label="Worst Month" value={`${min.toFixed(1)}%`} color="var(--error)" />
       </div>
 
       {/* Area chart */}
@@ -100,27 +98,33 @@ function FundDetailView({ fundName }) {
                 <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+            <XAxis dataKey="month" tick={{ fontSize: 12, fill: "var(--text-muted)" }} />
             <YAxis
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, fill: "var(--text-muted)" }}
               tickFormatter={(v) => `${v}%`}
               domain={["auto", "auto"]}
             />
             <Tooltip
               formatter={(value) => [`${value.toFixed(1)}%`, "Return"]}
-              contentStyle={{ borderRadius: "8px", fontSize: "0.85rem", border: "1px solid #e2e8f0" }}
+              contentStyle={{
+                borderRadius: "8px",
+                fontSize: "0.85rem",
+                border: "1px solid var(--chart-tooltip-border)",
+                background: "var(--chart-tooltip-bg)",
+                color: "var(--text-primary)",
+              }}
             />
-            <ReferenceLine y={0} stroke="#cbd5e1" strokeWidth={1} />
+            <ReferenceLine y={0} stroke="var(--chart-zero)" strokeWidth={1} />
             <ReferenceLine
               y={detail.average_return}
-              stroke="#f59e0b"
+              stroke="var(--amber)"
               strokeDasharray="5 3"
               strokeWidth={1.5}
               label={{
                 value: `Avg ${detail.average_return.toFixed(2)}%`,
                 position: "right",
-                style: { fontSize: 10, fill: "#f59e0b" },
+                style: { fontSize: 10, fill: "var(--amber)" },
               }}
             />
             <Area
@@ -141,7 +145,7 @@ function FundDetailView({ fundName }) {
         <h3 style={sectionHeading}>Monthly Breakdown</h3>
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "500px" }}>
-            <thead style={{ background: "#f8fafc" }}>
+            <thead style={{ background: "var(--bg-card-alt)" }}>
               <tr>
                 {MONTH_LABELS.map((m) => (
                   <th key={m} style={monthHeaderStyle}>{m}</th>
@@ -155,8 +159,8 @@ function FundDetailView({ fundName }) {
                     key={i}
                     style={{
                       ...monthCellStyle,
-                      color: val >= 0 ? "#16a34a" : "#dc2626",
-                      background: val >= 0 ? "#f0fdf4" : "#fef2f2",
+                      color: val >= 0 ? "var(--success)" : "var(--error)",
+                      background: val >= 0 ? "var(--positive-bg)" : "var(--negative-bg)",
                     }}
                   >
                     {val >= 0 ? "+" : ""}{val.toFixed(1)}%
@@ -175,16 +179,16 @@ function StatCard({ label, value, color }) {
   return (
     <div
       style={{
-        background: "#f8fafc",
+        background: "var(--bg-card-alt)",
         borderRadius: "8px",
         padding: "1rem",
         borderLeft: `3px solid ${color}`,
       }}
     >
-      <div style={{ fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "#64748b", marginBottom: "0.2rem" }}>
+      <div style={{ fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text-muted)", marginBottom: "0.2rem" }}>
         {label}
       </div>
-      <div style={{ fontSize: "1.4rem", fontWeight: 700, color: "#1e293b" }}>
+      <div style={{ fontSize: "1.4rem", fontWeight: 700, color: "var(--text-primary)" }}>
         {value}
       </div>
     </div>
@@ -192,7 +196,7 @@ function StatCard({ label, value, color }) {
 }
 
 const cardStyle = {
-  background: "#f8fafc",
+  background: "var(--bg-card-alt)",
   borderRadius: "8px",
   padding: "1.25rem",
   marginBottom: "1rem",
@@ -200,7 +204,7 @@ const cardStyle = {
 
 const sectionHeading = {
   fontSize: "0.9rem",
-  color: "#334155",
+  color: "var(--text-secondary)",
   marginTop: 0,
   marginBottom: "0.75rem",
   fontWeight: 600,
@@ -209,8 +213,8 @@ const sectionHeading = {
 const spinnerStyle = {
   width: "28px",
   height: "28px",
-  border: "3px solid #e2e8f0",
-  borderTopColor: "#6366f1",
+  border: "3px solid var(--border)",
+  borderTopColor: "var(--accent)",
   borderRadius: "50%",
   animation: "spin 0.6s linear infinite",
   margin: "0 auto",
@@ -219,8 +223,8 @@ const spinnerStyle = {
 const monthHeaderStyle = {
   padding: "0.5rem 0.4rem",
   textAlign: "center",
-  borderBottom: "2px solid #e2e8f0",
-  color: "#475569",
+  borderBottom: "2px solid var(--border)",
+  color: "var(--text-secondary)",
   fontSize: "0.7rem",
   textTransform: "uppercase",
   letterSpacing: "0.03em",

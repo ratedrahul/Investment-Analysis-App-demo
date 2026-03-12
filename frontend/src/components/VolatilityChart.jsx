@@ -27,16 +27,16 @@ function VolatilityChart({ funds }) {
       <div style={chartCard}>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={data} margin={{ top: 10, right: 20, left: -10, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+            <XAxis dataKey="name" tick={{ fontSize: 12, fill: "var(--text-muted)" }} />
             <YAxis
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, fill: "var(--text-muted)" }}
               label={{
                 value: "Std Dev",
                 angle: -90,
                 position: "insideLeft",
                 offset: 15,
-                style: { fontSize: 11, fill: "#94a3b8" },
+                style: { fontSize: 11, fill: "var(--text-dimmed)" },
               }}
             />
             <Tooltip
@@ -44,7 +44,13 @@ function VolatilityChart({ funds }) {
                 value.toFixed(2),
                 name === "volatility" ? "Volatility" : name,
               ]}
-              contentStyle={{ borderRadius: "8px", fontSize: "0.85rem", border: "1px solid #e2e8f0" }}
+              contentStyle={{
+                borderRadius: "8px",
+                fontSize: "0.85rem",
+                border: "1px solid var(--chart-tooltip-border)",
+                background: "var(--chart-tooltip-bg)",
+                color: "var(--text-primary)",
+              }}
             />
             <Bar dataKey="volatility" radius={[6, 6, 0, 0]} barSize={48}>
               {data.map((_entry, index) => (
@@ -61,15 +67,15 @@ function VolatilityChart({ funds }) {
 const headingStyle = {
   fontSize: "1.1rem",
   marginBottom: "0.75rem",
-  color: "#1e293b",
+  color: "var(--text-primary)",
   fontWeight: 600,
 };
 
 const chartCard = {
-  background: "#fff",
+  background: "var(--bg-card)",
   borderRadius: "8px",
   padding: "1.25rem",
-  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+  boxShadow: "var(--shadow)",
 };
 
 export default VolatilityChart;
