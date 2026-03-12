@@ -99,6 +99,14 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
+# Cache — in-memory, used by fund analysis views
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "fund-analysis",
+    }
+}
+
 # CORS — allow the Vite dev server
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",

@@ -1,3 +1,5 @@
+from django.core.cache import cache
+
 from rest_framework import serializers as drf_serializers
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -12,6 +14,18 @@ from .services.analysis import (
     get_top_consistent_funds,
 )
 from .services.dataset_generator import generate_dataset
+
+CACHE_TTL = 60  # seconds
+ANALYSIS_CACHE_KEYS = [
+    "funds:top_consistent",
+    "funds:all",
+    "funds:rankings",
+]
+
+
+def _clear_analysis_cache():
+    """Remove all cached analysis results (called after dataset regeneration)."""
+    cache.delete_many(ANALYSIS_CACHE_KEYS)
 
 
 @extend_schema(
@@ -70,9 +84,12 @@ def health_check(request):
 @api_view(["GET"])
 def top_consistent_funds(request):
     """Return the top 3 most consistent funds ranked by lowest volatility."""
-    stats = get_top_consistent_funds(n=3)
-    serializer = FundStatsSerializer(stats, many=True)
-    return Response({"funds": serializer.data})
+    result = cache.get("funds:top_consistent")
+    if result is None:
+        stats = get_top_consistent_funds(n=3)
+        result = {"funds": FundStatsSerializer(stats, many=True).data}
+        cache.set("funds:top_consistent", result, CACHE_TTL)
+    return Response(result)
 
 
 @extend_schema(
@@ -86,9 +103,12 @@ def top_consistent_funds(request):
 @api_view(["GET"])
 def all_funds(request):
     """Return every fund with its average return and volatility metrics."""
-    stats = get_all_fund_stats()
-    serializer = FundStatsSerializer(stats, many=True)
-    return Response({"funds": serializer.data})
+    result = cache.get("funds:all")
+    if result is None:
+        stats = get_all_fund_stats()
+        result = {"funds": FundStatsSerializer(stats, many=True).data}
+        cache.set("funds:all", result, CACHE_TTL)
+    return Response(result)
 
 
 @extend_schema(
@@ -102,9 +122,12 @@ def all_funds(request):
 @api_view(["GET"])
 def fund_rankings(request):
     """Return all funds ranked by consistency (lowest volatility first)."""
-    rankings = get_fund_rankings()
-    serializer = FundRankingSerializer(rankings, many=True)
-    return Response({"funds": serializer.data})
+    result = cache.get("funds:rankings")
+    if result is None:
+        rankings = get_fund_rankings()
+        result = {"funds": FundRankingSerializer(rankings, many=True).data}
+        cache.set("funds:rankings", result, CACHE_TTL)
+    return Response(result)
 
 
 @extend_schema(
@@ -125,6 +148,7 @@ def fund_rankings(request):
 def generate_dataset_view(request):
     """Generate a fresh 100-fund CSV dataset and save it to disk."""
     fund_count = generate_dataset()
+    _clear_analysis_cache()
     return Response({"status": "success", "fund_count": fund_count})
 
 
