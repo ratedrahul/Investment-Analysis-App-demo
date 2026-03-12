@@ -13,9 +13,7 @@ import {
 const BAR_COLORS = ["#6366f1", "#8b5cf6", "#a78bfa"];
 
 function VolatilityChart({ funds }) {
-  if (!funds || funds.length === 0) {
-    return null;
-  }
+  if (!funds || funds.length === 0) return null;
 
   const data = funds.map((f) => ({
     name: f.fund_name,
@@ -24,45 +22,33 @@ function VolatilityChart({ funds }) {
   }));
 
   return (
-    <section style={{ marginBottom: "2.5rem" }}>
-      <h2 style={{ fontSize: "1.25rem", marginBottom: "1rem", color: "#1e293b" }}>
-        Volatility Comparison
-      </h2>
-
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: "8px",
-          padding: "1.5rem",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-        }}
-      >
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
+    <section>
+      <h2 style={headingStyle}>Volatility Comparison</h2>
+      <div style={chartCard}>
+        <ResponsiveContainer width="100%" height={220}>
+          <BarChart data={data} margin={{ top: 10, right: 20, left: -10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="name" tick={{ fontSize: 13 }} />
+            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
             <YAxis
-              tick={{ fontSize: 13 }}
+              tick={{ fontSize: 12 }}
               label={{
-                value: "Volatility (Std Dev)",
+                value: "Std Dev",
                 angle: -90,
                 position: "insideLeft",
-                style: { fontSize: 12, fill: "#64748b" },
+                offset: 15,
+                style: { fontSize: 11, fill: "#94a3b8" },
               }}
             />
             <Tooltip
-              formatter={(value, name) => {
-                const label = name === "volatility" ? "Volatility" : name;
-                return [value.toFixed(2), label];
-              }}
-              contentStyle={{ borderRadius: "6px", fontSize: "0.9rem" }}
+              formatter={(value, name) => [
+                value.toFixed(2),
+                name === "volatility" ? "Volatility" : name,
+              ]}
+              contentStyle={{ borderRadius: "8px", fontSize: "0.85rem", border: "1px solid #e2e8f0" }}
             />
-            <Bar dataKey="volatility" radius={[4, 4, 0, 0]} barSize={60}>
+            <Bar dataKey="volatility" radius={[6, 6, 0, 0]} barSize={48}>
               {data.map((_entry, index) => (
-                <Cell
-                  key={index}
-                  fill={BAR_COLORS[index % BAR_COLORS.length]}
-                />
+                <Cell key={index} fill={BAR_COLORS[index % BAR_COLORS.length]} />
               ))}
             </Bar>
           </BarChart>
@@ -71,5 +57,19 @@ function VolatilityChart({ funds }) {
     </section>
   );
 }
+
+const headingStyle = {
+  fontSize: "1.1rem",
+  marginBottom: "0.75rem",
+  color: "#1e293b",
+  fontWeight: 600,
+};
+
+const chartCard = {
+  background: "#fff",
+  borderRadius: "8px",
+  padding: "1.25rem",
+  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+};
 
 export default VolatilityChart;

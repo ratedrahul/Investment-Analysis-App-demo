@@ -7,12 +7,14 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  ReferenceLine,
+  ReferenceDot,
 } from "recharts";
 
 const MAX_MONTHS = 1200;
 
 function simulate(goalAmount, monthlyContribution, annualRate) {
-  if (goalAmount <= 0 || monthlyContribution <= 0) return [];
+  if (goalAmount <= 0 || monthlyContribution <= 0 || annualRate < 0) return [];
 
   const monthlyRate = annualRate / 12 / 100;
   const projections = [];
@@ -25,6 +27,14 @@ function simulate(goalAmount, monthlyContribution, annualRate) {
   }
 
   return projections;
+}
+
+function validate(goalAmount, monthlyContribution, annualRate) {
+  const errors = [];
+  if (goalAmount <= 0) errors.push("Goal amount must be positive.");
+  if (monthlyContribution <= 0) errors.push("Monthly contribution must be positive.");
+  if (annualRate < 0) errors.push("Interest rate cannot be negative.");
+  return errors;
 }
 
 const inputGroupStyle = {
@@ -53,6 +63,12 @@ const inputStyle = {
   boxSizing: "border-box",
 };
 
+const inputErrorStyle = {
+  ...inputStyle,
+  border: "1px solid #fca5a5",
+  background: "#fef2f2",
+};
+
 const cardStyle = {
   background: "#fff",
   borderRadius: "8px",
@@ -77,6 +93,20 @@ const cellStyle = {
   fontSize: "0.9rem",
 };
 
+const statLabelStyle = {
+  fontSize: "0.7rem",
+  textTransform: "uppercase",
+  letterSpacing: "0.05em",
+  color: "#64748b",
+  marginBottom: "0.2rem",
+};
+
+const statValueStyle = {
+  fontSize: "1.4rem",
+  fontWeight: 700,
+  color: "#1e293b",
+};
+
 function formatCurrency(value) {
   return value.toLocaleString("en-US", {
     style: "currency",
@@ -91,13 +121,38 @@ function GoalMonthsCalculator() {
   const [monthlyContribution, setMonthlyContribution] = useState(500);
   const [annualRate, setAnnualRate] = useState(6);
 
+  const errors = useMemo(
+    () => validate(goalAmount, monthlyContribution, annualRate),
+    [goalAmount, monthlyContribution, annualRate]
+  );
+
   const projections = useMemo(
     () => simulate(goalAmount, monthlyContribution, annualRate),
     [goalAmount, monthlyContribution, annualRate]
   );
 
   const monthsRequired = projections.length;
-  const goalReached = monthsRequired > 0 && projections[monthsRequired - 1].balance >= goalAmount;
+  const goalReached =
+    monthsRequired > 0 && projections[monthsRequired - 1].balance >= goalAmount;
+
+  const summary = useMemo(() => {
+    if (!goalReached) return null;
+    const totalInvested = monthlyContribution * monthsRequired;
+    const finalBalance = projections[monthsRequired - 1].balance;
+    const totalInterest = finalBalance - totalInvested;
+    return {
+      months: monthsRequired,
+      years: (monthsRequired / 12).toFixed(1),
+      totalInvested,
+      totalInterest: Math.round(totalInterest * 100) / 100,
+      finalBalance,
+    };
+  }, [goalReached, monthsRequired, monthlyContribution, projections]);
+
+  const goalPoint = useMemo(() => {
+    if (!goalReached) return null;
+    return projections[monthsRequired - 1];
+  }, [goalReached, projections, monthsRequired]);
 
   const chartTicks = useMemo(() => {
     if (monthsRequired <= 12) return undefined;
@@ -133,7 +188,7 @@ function GoalMonthsCalculator() {
             <input
               type="number"
               min="1"
-              style={inputStyle}
+              style={goalAmount <= 0 ? inputErrorStyle : inputStyle}
               value={goalAmount}
               onChange={(e) => setGoalAmount(Number(e.target.value))}
             />
@@ -143,7 +198,7 @@ function GoalMonthsCalculator() {
             <input
               type="number"
               min="1"
-              style={inputStyle}
+              style={monthlyContribution <= 0 ? inputErrorStyle : inputStyle}
               value={monthlyContribution}
               onChange={(e) => setMonthlyContribution(Number(e.target.value))}
             />
@@ -154,39 +209,59 @@ function GoalMonthsCalculator() {
               type="number"
               min="0"
               step="0.1"
-              style={inputStyle}
+              style={annualRate < 0 ? inputErrorStyle : inputStyle}
               value={annualRate}
               onChange={(e) => setAnnualRate(Number(e.target.value))}
             />
           </div>
         </div>
+
+        {errors.length > 0 && (
+          <div style={{ marginTop: "0.75rem", color: "#dc2626", fontSize: "0.85rem" }}>
+            {errors.map((err) => (
+              <div key={err}>{err}</div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* --- Summary --- */}
-      {goalReached && (
+      {/* --- Summary cards --- */}
+      {summary && (
         <div
           style={{
-            ...cardStyle,
-            background: "#f0fdf4",
-            border: "1px solid #bbf7d0",
-            display: "flex",
-            alignItems: "center",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
             gap: "0.75rem",
+            marginBottom: "1rem",
           }}
         >
-          <span style={{ fontSize: "1.5rem" }}>&#10003;</span>
-          <span style={{ fontSize: "1rem", color: "#166534" }}>
-            You will reach{" "}
-            <strong>{formatCurrency(goalAmount)}</strong> in{" "}
-            <strong>
-              {monthsRequired} month{monthsRequired !== 1 && "s"}
-            </strong>{" "}
-            ({(monthsRequired / 12).toFixed(1)} years) with a final balance of{" "}
-            <strong>{formatCurrency(projections[monthsRequired - 1].balance)}</strong>.
-          </span>
+          <div style={cardStyle}>
+            <div style={statLabelStyle}>Months Required</div>
+            <div style={statValueStyle}>
+              {summary.months}
+              <span style={{ fontSize: "0.85rem", fontWeight: 400, color: "#64748b" }}>
+                {" "}({summary.years} yr)
+              </span>
+            </div>
+          </div>
+          <div style={cardStyle}>
+            <div style={statLabelStyle}>Total Invested</div>
+            <div style={statValueStyle}>{formatCurrency(summary.totalInvested)}</div>
+          </div>
+          <div style={cardStyle}>
+            <div style={statLabelStyle}>Interest Earned</div>
+            <div style={{ ...statValueStyle, color: "#16a34a" }}>
+              {formatCurrency(summary.totalInterest)}
+            </div>
+          </div>
+          <div style={cardStyle}>
+            <div style={statLabelStyle}>Final Balance</div>
+            <div style={statValueStyle}>{formatCurrency(summary.finalBalance)}</div>
+          </div>
         </div>
       )}
 
+      {/* --- Status banners --- */}
       {monthsRequired > 0 && !goalReached && (
         <div
           style={{
@@ -202,7 +277,7 @@ function GoalMonthsCalculator() {
         </div>
       )}
 
-      {projections.length === 0 && (
+      {projections.length === 0 && errors.length === 0 && (
         <div style={{ ...cardStyle, color: "#64748b", fontSize: "0.95rem" }}>
           Enter a valid goal amount and monthly contribution to see projections.
         </div>
@@ -238,6 +313,17 @@ function GoalMonthsCalculator() {
                 labelFormatter={(label) => `Month ${label}`}
                 contentStyle={{ borderRadius: "6px", fontSize: "0.9rem" }}
               />
+              <ReferenceLine
+                y={goalAmount}
+                stroke="#f59e0b"
+                strokeDasharray="5 3"
+                strokeWidth={1.5}
+                label={{
+                  value: `Goal ${formatCurrency(goalAmount)}`,
+                  position: "right",
+                  style: { fontSize: 11, fill: "#f59e0b" },
+                }}
+              />
               <Line
                 type="monotone"
                 dataKey="balance"
@@ -246,6 +332,16 @@ function GoalMonthsCalculator() {
                 dot={false}
                 activeDot={{ r: 5 }}
               />
+              {goalPoint && (
+                <ReferenceDot
+                  x={goalPoint.month}
+                  y={goalPoint.balance}
+                  r={6}
+                  fill="#16a34a"
+                  stroke="#fff"
+                  strokeWidth={2}
+                />
+              )}
             </LineChart>
           </ResponsiveContainer>
         </div>

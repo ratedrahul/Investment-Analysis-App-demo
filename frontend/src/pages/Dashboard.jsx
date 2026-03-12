@@ -3,42 +3,13 @@ import TopFundsTable from "../components/TopFundsTable";
 import VolatilityChart from "../components/VolatilityChart";
 import FundRankingsTable from "../components/FundRankingsTable";
 import FundDetailView from "../components/FundDetailView";
+import Modal from "../components/Modal";
 import GoalMonthsCalculator from "../components/GoalMonthsCalculator";
 import {
   fetchTopConsistentFunds,
   fetchFundRankings,
   generateDataset,
 } from "../services/api";
-
-const btnStyle = {
-  padding: "0.6rem 1.25rem",
-  background: "#6366f1",
-  color: "#fff",
-  border: "none",
-  borderRadius: "6px",
-  fontSize: "0.9rem",
-  fontWeight: 500,
-  cursor: "pointer",
-  transition: "background 0.15s",
-};
-
-const btnSecondaryStyle = {
-  ...btnStyle,
-  background: "#334155",
-};
-
-const btnDisabledStyle = {
-  ...btnStyle,
-  background: "#a5b4fc",
-  cursor: "not-allowed",
-};
-
-const messageBannerStyle = {
-  padding: "0.75rem 1.25rem",
-  borderRadius: "6px",
-  fontSize: "0.9rem",
-  marginBottom: "1.5rem",
-};
 
 function Dashboard() {
   const [topFunds, setTopFunds] = useState([]);
@@ -92,66 +63,49 @@ function Dashboard() {
 
   if (loading) {
     return (
-      <div style={{ textAlign: "center", padding: "3rem", color: "#64748b" }}>
-        Loading fund data...
+      <div style={{ textAlign: "center", padding: "4rem", color: "#64748b" }}>
+        <div style={spinnerStyleLarge} />
+        <div style={{ marginTop: "1rem", fontSize: "1rem" }}>Loading fund data...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div
-        style={{
-          textAlign: "center",
-          padding: "3rem",
-          color: "#dc2626",
-          background: "#fef2f2",
-          borderRadius: "8px",
-          margin: "2rem auto",
-          maxWidth: "600px",
-        }}
-      >
-        Error: {error}
+      <div style={errorBannerStyle}>
+        <strong>Error:</strong> {error}
       </div>
     );
   }
 
   return (
     <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "1rem" }}>
-      {/* Action buttons */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          gap: "0.75rem",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <a
-          href="/api/funds/export/"
-          download
-          style={{ ...btnSecondaryStyle, textDecoration: "none" }}
-        >
-          Export Rankings
-        </a>
-        <button
-          onClick={handleGenerate}
-          disabled={generating}
-          style={generating ? btnDisabledStyle : btnStyle}
-        >
-          {generating ? "Generating..." : "Generate Dataset"}
-        </button>
+      {/* Action bar */}
+      <div style={actionBarStyle}>
+        <div style={{ fontSize: "0.85rem", color: "#64748b" }}>
+          {rankings.length} funds loaded
+        </div>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <a href="/api/funds/export/" download style={btnSecondary}>
+            Export CSV
+          </a>
+          <button
+            onClick={handleGenerate}
+            disabled={generating}
+            style={generating ? btnDisabled : btnPrimary}
+          >
+            {generating ? "Generating..." : "Generate Dataset"}
+          </button>
+        </div>
       </div>
 
+      {/* Status banner */}
       {genMessage && (
         <div
           style={{
-            ...messageBannerStyle,
+            ...bannerStyle,
             background: genMessage.type === "success" ? "#f0fdf4" : "#fef2f2",
-            border:
-              genMessage.type === "success"
-                ? "1px solid #bbf7d0"
-                : "1px solid #fecaca",
+            borderColor: genMessage.type === "success" ? "#bbf7d0" : "#fecaca",
             color: genMessage.type === "success" ? "#166534" : "#dc2626",
           }}
         >
@@ -159,24 +113,86 @@ function Dashboard() {
         </div>
       )}
 
-      {/* Top 3 + Volatility Chart */}
-      <TopFundsTable funds={topFunds} />
-      <VolatilityChart funds={topFunds} />
+      {/* Top 3 + Volatility side-by-side on wide screens */}
+      <div style={topSectionGrid}>
+        <TopFundsTable funds={topFunds} onSelectFund={setSelectedFund} />
+        <VolatilityChart funds={topFunds} />
+      </div>
 
-      {/* Fund Detail or Rankings Table */}
-      {selectedFund ? (
-        <FundDetailView
-          fundName={selectedFund}
-          onClose={() => setSelectedFund(null)}
-        />
-      ) : (
-        <FundRankingsTable funds={rankings} onSelectFund={setSelectedFund} />
-      )}
+      {/* Rankings — always visible */}
+      <FundRankingsTable funds={rankings} onSelectFund={setSelectedFund} />
 
-      {/* Goal Calculator */}
+      {/* Fund detail modal */}
+      <Modal open={!!selectedFund} onClose={() => setSelectedFund(null)}>
+        {selectedFund && <FundDetailView fundName={selectedFund} />}
+      </Modal>
+
+      {/* Goal calculator */}
       <GoalMonthsCalculator />
     </div>
   );
 }
+
+const spinnerStyleLarge = {
+  width: "36px",
+  height: "36px",
+  border: "3px solid #e2e8f0",
+  borderTopColor: "#6366f1",
+  borderRadius: "50%",
+  animation: "spin 0.6s linear infinite",
+  margin: "0 auto",
+};
+
+const errorBannerStyle = {
+  textAlign: "center",
+  padding: "2rem",
+  color: "#dc2626",
+  background: "#fef2f2",
+  borderRadius: "8px",
+  margin: "2rem auto",
+  maxWidth: "600px",
+  border: "1px solid #fecaca",
+};
+
+const actionBarStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: "1.5rem",
+  flexWrap: "wrap",
+  gap: "0.75rem",
+};
+
+const btnBase = {
+  padding: "0.55rem 1.1rem",
+  border: "none",
+  borderRadius: "6px",
+  fontSize: "0.85rem",
+  fontWeight: 500,
+  cursor: "pointer",
+  transition: "all 0.15s",
+  textDecoration: "none",
+  display: "inline-flex",
+  alignItems: "center",
+};
+
+const btnPrimary = { ...btnBase, background: "#6366f1", color: "#fff" };
+const btnSecondary = { ...btnBase, background: "#e2e8f0", color: "#334155" };
+const btnDisabled = { ...btnBase, background: "#a5b4fc", color: "#fff", cursor: "not-allowed" };
+
+const bannerStyle = {
+  padding: "0.75rem 1rem",
+  borderRadius: "8px",
+  fontSize: "0.9rem",
+  marginBottom: "1.5rem",
+  border: "1px solid",
+};
+
+const topSectionGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+  gap: "1.5rem",
+  marginBottom: "0.5rem",
+};
 
 export default Dashboard;
