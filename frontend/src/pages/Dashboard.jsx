@@ -22,6 +22,11 @@ const btnStyle = {
   transition: "background 0.15s",
 };
 
+const btnSecondaryStyle = {
+  ...btnStyle,
+  background: "#334155",
+};
+
 const btnDisabledStyle = {
   ...btnStyle,
   background: "#a5b4fc",
@@ -113,14 +118,22 @@ function Dashboard() {
 
   return (
     <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "1rem" }}>
-      {/* Generate Dataset */}
+      {/* Action buttons */}
       <div
         style={{
           display: "flex",
           justifyContent: "flex-end",
+          gap: "0.75rem",
           marginBottom: "1.5rem",
         }}
       >
+        <a
+          href="/api/funds/export/"
+          download
+          style={{ ...btnSecondaryStyle, textDecoration: "none" }}
+        >
+          Export Rankings
+        </a>
         <button
           onClick={handleGenerate}
           disabled={generating}

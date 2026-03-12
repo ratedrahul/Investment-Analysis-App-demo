@@ -1,4 +1,7 @@
+import csv
+
 from django.core.cache import cache
+from django.http import HttpResponse
 
 from rest_framework import serializers as drf_serializers
 from rest_framework import status
@@ -50,6 +53,7 @@ def api_root(request):
             "all_funds": "/api/funds/all/",
             "fund_rankings": "/api/funds/rankings/",
             "fund_detail": "/api/funds/<fund_name>/",
+            "export_rankings": "/api/funds/export/",
             "schema": "/api/schema/",
             "docs": "/api/docs/",
         },
@@ -150,6 +154,28 @@ def generate_dataset_view(request):
     fund_count = generate_dataset()
     _clear_analysis_cache()
     return Response({"status": "success", "fund_count": fund_count})
+
+
+@extend_schema(
+    summary="Export rankings as CSV",
+    description="Download all fund rankings as a CSV file with columns: Rank, Fund Name, Average Return, Volatility.",
+    responses={(200, "text/csv"): bytes},
+    tags=["Dataset"],
+)
+@api_view(["GET"])
+def export_rankings(request):
+    """Return fund rankings as a downloadable CSV file."""
+    rankings = get_fund_rankings()
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="fund_rankings.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(["Rank", "Fund Name", "Average Return", "Volatility"])
+    for r in rankings:
+        writer.writerow([r["rank"], r["fund_name"], r["average_return"], r["volatility"]])
+
+    return response
 
 
 @extend_schema(

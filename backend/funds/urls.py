@@ -9,5 +9,6 @@ urlpatterns = [
     path("funds/all/", views.all_funds, name="all-funds"),
     path("funds/rankings/", views.fund_rankings, name="fund-rankings"),
     path("funds/generate-dataset/", views.generate_dataset_view, name="generate-dataset"),
+    path("funds/export/", views.export_rankings, name="export-rankings"),
     path("funds/<str:fund_name>/", views.fund_detail, name="fund-detail"),
 ]
